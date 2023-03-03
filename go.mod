@@ -1,4 +1,4 @@
-module gormboot
+module github.com/neoguojing/gormboot
 
 go 1.19
 
