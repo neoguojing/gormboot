@@ -70,6 +70,15 @@ func Init() {
 
 		}
 
+		for _, m := range models {
+			if !db.HasTable(m) {
+				err = db.CreateTable().Error
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+		}
+
 		if len(models) != 0 {
 			err = db.AutoMigrate(models...).Error
 			if err != nil {
