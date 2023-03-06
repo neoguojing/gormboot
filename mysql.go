@@ -72,7 +72,7 @@ func Init() {
 
 		for _, m := range models {
 			if !db.HasTable(m) {
-				err = db.CreateTable().Error
+				err = db.CreateTable(m).Error
 				if err != nil {
 					log.Fatal(err)
 				}
