@@ -18,6 +18,15 @@ const (
 	ClickHouse DatabaseType = "clickhouse"
 )
 
+var (
+	DefaultDB *Factory
+)
+
+
+func init() {
+	DefaultDB = New(DefaultSqliteConfig("./sqlite3.db"))
+}
+
 func DefaulMysqlConfig(user, password, host, database string, port int) *DBConfig {
 	cfg := &DBConfig{
 		Source:   MySQL,
