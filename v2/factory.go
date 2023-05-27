@@ -22,7 +22,6 @@ var (
 	DefaultDB *Factory
 )
 
-
 func init() {
 	DefaultDB = New(DefaultSqliteConfig("./sqlite3.db"))
 }
@@ -213,6 +212,7 @@ func (d *Factory) AutoMigrate() *Factory {
 		if !d.db.Migrator().HasTable(m) {
 			err := d.db.Migrator().CreateTable(m).Error
 			if err != nil {
+				log.Fatal(err)
 				return nil
 			}
 		}
@@ -221,6 +221,7 @@ func (d *Factory) AutoMigrate() *Factory {
 	if len(d.models) != 0 {
 		err := d.db.AutoMigrate(d.models...)
 		if err != nil {
+			log.Fatal(err)
 			return nil
 		}
 	}
