@@ -153,18 +153,18 @@ func (cfg *DBConfig) DSN() string {
 	}
 }
 
-type DB struct {
+type Factory struct {
 	models []interface{}
 	db     *gorm.DB
 }
 
-func NewByEnv(dbType DatabaseType) *DB {
+func NewByEnv(dbType DatabaseType) *Factory {
 	cfg := BuildByEnv(dbType)
 
 	return New(cfg)
 }
 
-func New(cfg *DBConfig) *DB {
+func New(cfg *DBConfig) *Factory {
 	var db *gorm.DB
 	switch cfg.Source {
 	case MySQL:
@@ -188,17 +188,17 @@ func New(cfg *DBConfig) *DB {
 		sqlDB.SetMaxOpenConns(cfg.MaxOpen)
 	}
 
-	return &DB{
+	return &Factory{
 		db:     db,
 		models: make([]interface{}, 0),
 	}
 }
 
-func (d *DB) RegisterModel(model ...interface{}) {
+func (d *Factory) RegisterModel(model ...interface{}) {
 	d.models = append(d.models, model...)
 }
 
-func (d *DB) AutoMigrate() *DB {
+func (d *Factory) AutoMigrate() *Factory {
 
 	for _, m := range d.models {
 		if !d.db.Migrator().HasTable(m) {
@@ -219,7 +219,7 @@ func (d *DB) AutoMigrate() *DB {
 	return d
 }
 
-func (d *DB) Close() error {
+func (d *Factory) Close() error {
 	if d.db == nil {
 		return nil
 	}
@@ -229,4 +229,8 @@ func (d *DB) Close() error {
 		log.Println(err)
 	}
 	return sqlDB.Close()
+}
+
+func (d *Factory) DB() *gorm.DB {
+	return d.db
 }
