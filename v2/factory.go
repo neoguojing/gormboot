@@ -210,7 +210,7 @@ func (d *Factory) AutoMigrate() *Factory {
 	}
 
 	if len(d.models) != 0 {
-		err := d.db.AutoMigrate(d.models...).Error
+		err := d.db.AutoMigrate(d.models...)
 		if err != nil {
 			return nil
 		}
