@@ -44,6 +44,7 @@ func DefaulClickhouseConfig(user, password, host, database string, port int) *DB
 
 func DefaultSqliteConfig(filePath string) *DBConfig {
 	cfg := &DBConfig{
+		Source:   SQLite,
 		FilePath: filePath,
 	}
 	return cfg
@@ -229,4 +230,3 @@ func (d *DB) Close() error {
 	}
 	return sqlDB.Close()
 }
-
