@@ -210,7 +210,7 @@ func (d *Factory) AutoMigrate() *Factory {
 
 	for _, m := range d.models {
 		if !d.db.Migrator().HasTable(m) {
-			err := d.db.Migrator().CreateTable(m).Error
+			err := d.db.Migrator().CreateTable(m)
 			if err != nil {
 				log.Fatal(err)
 				return nil
