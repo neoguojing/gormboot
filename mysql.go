@@ -1,10 +1,11 @@
 package gormboot
 
 import (
-	"log"
 	"os"
 	"strconv"
 	"sync"
+
+	"github.com/neoguojing/log"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -33,11 +34,11 @@ func Init() {
 		enableLog := os.Getenv("db.log")
 
 		if source == "" {
-			log.Fatal("env db.source was empty")
+			panic("env db.source was empty")
 		}
 
 		if dbPath == "" {
-			log.Fatal("env db.path was empty")
+			panic("env db.path was empty")
 		}
 
 		var err error
@@ -55,7 +56,7 @@ func Init() {
 			if err == nil {
 				db.DB().SetMaxOpenConns(maxC)
 			} else {
-				log.Print(err.Error())
+				log.Error(err.Error())
 			}
 
 		}
@@ -65,7 +66,7 @@ func Init() {
 			if err == nil {
 				db.DB().SetMaxIdleConns(maxI)
 			} else {
-				log.Print(err.Error())
+				log.Error(err.Error())
 			}
 
 		}
@@ -74,7 +75,7 @@ func Init() {
 			if !db.HasTable(m) {
 				err = db.CreateTable(m).Error
 				if err != nil {
-					log.Fatal(err)
+					panic(err)
 				}
 			}
 		}
@@ -82,7 +83,7 @@ func Init() {
 		if len(models) != 0 {
 			err = db.AutoMigrate(models...).Error
 			if err != nil {
-				log.Fatal(err)
+				panic(err)
 			}
 		}
 	})

@@ -3,9 +3,11 @@ package gormboot
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
+	"path/filepath"
 	"strconv"
+
+	"github.com/neoguojing/log"
 
 	"gorm.io/gorm"
 )
@@ -23,7 +25,9 @@ var (
 )
 
 func init() {
-	DefaultDB = New(DefaultSqliteConfig("./sqlite3.db"))
+	basepath := os.Getenv("DB_PATH")
+	dbPath := filepath.Join(basepath, "sqlite3.db")
+	DefaultDB = New(DefaultSqliteConfig(dbPath))
 }
 
 func DefaulMysqlConfig(user, password, host, database string, port int) *DBConfig {
@@ -102,12 +106,12 @@ func checkEnv(source DatabaseType) error {
 
 func BuildByEnv(source DatabaseType) *DBConfig {
 	if err := checkEnv(source); err != nil {
-		log.Fatalf("failed to check env: %v", err)
+		panic(fmt.Sprintf("failed to check env: %v", err))
 	}
 	dbConfig := DBConfig{}
 	portInt, err := strconv.Atoi(os.Getenv("db.port"))
 	if err != nil {
-		log.Fatalf("failed to convert port to int: %v", err)
+		panic(fmt.Sprintf("failed to convert port to int: %v", err))
 	}
 
 	switch source {
@@ -132,7 +136,7 @@ func BuildByEnv(source DatabaseType) *DBConfig {
 			DataBase: os.Getenv("db.database"),
 		}
 	default:
-		log.Fatalf("unsupported database type: %s", source)
+		panic(fmt.Sprintf("unsupported database type: %s", source))
 	}
 	return &dbConfig
 }
@@ -156,7 +160,7 @@ func (cfg *DBConfig) DSN() string {
 			cfg.Host, cfg.Port, cfg.DataBase)
 
 	default:
-		log.Fatalf("unsupported database type: %s", cfg.Source)
+		panic(fmt.Sprintf("unsupported database type: %s", cfg.Source))
 		return ""
 	}
 }
@@ -182,11 +186,11 @@ func New(cfg *DBConfig) *Factory {
 	case ClickHouse:
 		db = NewClickhouse(cfg)
 	default:
-		log.Fatal("invalid db source")
+		panic("invalid db source")
 	}
 	sqlDB, err := db.DB()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	if cfg.MaxIdle > 0 {
@@ -212,7 +216,7 @@ func (d *Factory) AutoMigrate() *Factory {
 		if !d.db.Migrator().HasTable(m) {
 			err := d.db.Migrator().CreateTable(m)
 			if err != nil {
-				log.Fatal(err)
+				log.Error(err.Error())
 				return nil
 			}
 		}
@@ -221,7 +225,7 @@ func (d *Factory) AutoMigrate() *Factory {
 	if len(d.models) != 0 {
 		err := d.db.AutoMigrate(d.models...)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err.Error())
 			return nil
 		}
 	}
@@ -236,7 +240,7 @@ func (d *Factory) Close() error {
 
 	sqlDB, err := d.db.DB()
 	if err != nil {
-		log.Println(err)
+		log.Error(err.Error())
 	}
 	return sqlDB.Close()
 }
